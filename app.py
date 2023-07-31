@@ -5,7 +5,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
-from models import connect_db, Cupcake, db
+from models import connect_db, Cupcake, db, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
 
@@ -80,22 +80,37 @@ def create_cupcake():
 @app.patch('/api/cupcakes/<int:cupcake_id>')
 def update_cupcake(cupcake_id):
     """Updates information on a single cupcake.
-    Returns JSON: {"cupcake": {id, flavor, size, rating, image_url}"""
+    Body should be a JSON object containing changed values.
+    Example: {"flavor": "chocolate", "size": "medium", "rating": "5"}
+
+    Returns JSON: {
+        "cupcake": {
+            "id": "1",
+            "flavor": "chocolate",
+            "size": "medium",
+            "rating": "5",
+            "image_url":
+            "example.com"
+        }"""
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
 
     cupcake.flavor = request.json.get("flavor", cupcake.flavor)
     cupcake.size = request.json.get("size", cupcake.size)
     cupcake.rating = request.json.get("rating", cupcake.rating)
-    cupcake.image_url = request.json.get("image_url", cupcake.image_url)
+
+    if not request.json.get("image_url") == "":
+        cupcake.image_url = request.json.get("image_url")
+    else:
+        cupcake.image_url = DEFAULT_IMAGE_URL
+
 
     db.session.commit()
 
     serialized = cupcake.serialize()
 
-    return (jsonify(cupcake=serialized))
-    # Is status code necessary here?
-    # How does the status code get passed?
+    return jsonify(cupcake=serialized)
+
 
 
 @app.delete('/api/cupcakes/<int:cupcake_id>')
@@ -104,9 +119,9 @@ def delete_cupcake(cupcake_id):
     Returns JSON: {deleted: [cupcake-id]}"""
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
-    # serialized = cupcake.serialize()
 
     db.session.delete(cupcake)
     db.session.commit()
 
-    return jsonify(delete=cupcake.id)
+    return jsonify(deleted=[cupcake.id])
+
