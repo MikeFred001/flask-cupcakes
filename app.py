@@ -75,3 +75,38 @@ def create_cupcake():
     serialized = new_cupcake.serialize()
 
     return (jsonify(cupcake=serialized), 201)
+
+
+@app.patch('/api/cupcakes/<int:cupcake_id>')
+def update_cupcake(cupcake_id):
+    """Updates information on a single cupcake.
+    Returns JSON: {"cupcake": {id, flavor, size, rating, image_url}"""
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    cupcake.flavor = request.json.get("flavor", cupcake.flavor)
+    cupcake.size = request.json.get("size", cupcake.size)
+    cupcake.rating = request.json.get("rating", cupcake.rating)
+    cupcake.image_url = request.json.get("image_url", cupcake.image_url)
+
+    db.session.commit()
+
+    serialized = cupcake.serialize()
+
+    return (jsonify(cupcake=serialized))
+    # Is status code necessary here?
+    # How does the status code get passed?
+
+
+@app.delete('/api/cupcakes/<int:cupcake_id>')
+def delete_cupcake(cupcake_id):
+    """Delete's a cupcake
+    Returns JSON: {deleted: [cupcake-id]}"""
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+    # serialized = cupcake.serialize()
+
+    db.session.delete(cupcake)
+    db.session.commit()
+
+    return jsonify(delete=cupcake.id)
