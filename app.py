@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Flask, render_template, redirect, request, flash, jsonify
+from flask import Flask, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import connect_db, Cupcake, db
@@ -23,7 +23,10 @@ connect_db(app)
 
 @app.get('/api/cupcakes')
 def list_all_cupcakes():
-    """Show data about all cupcakes"""
+    """Show data about all cupcakes
+    {"cupcakes": [{id, flavor, size, rating, image_url},
+    {id, flavor, size, rating, image_url}]}
+   """
 
     cupcakes = Cupcake.query.all()
     serialized = [ cupcake.serialize() for cupcake in cupcakes ]
@@ -34,7 +37,8 @@ def list_all_cupcakes():
 @app.get('/api/cupcakes/<int:cupcake_id>')
 def list_single_cupcake(cupcake_id):
     """Show information on one single cupcake.
-    Returns JSON {"cupcake": {id, flavor, size....}}"""
+    Returns JSON {"cupcake": {id, flavor, size, rating, image_url}}
+    """
 
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
@@ -45,20 +49,25 @@ def list_single_cupcake(cupcake_id):
 
 @app.post('/api/cupcakes')
 def create_cupcake():
-    """Make a new cupcake
-     Returns JSON {"cupcake": {id, flavor, size....}}
+    """Make a new cupcake.
+    Post body should look like this:
+    {"flavor": flavor, "size": size, "rating": rating, "image_url": ""}
+
+     Returns JSON {"cupcake": {id, flavor, size, rating, image_url}}
     """
 
 
     flavor = request.json["flavor"]
     size = request.json["size"]
     rating = request.json["rating"]
-    image_url = request.json["image_url"]
+    image_url = request.json["image_url"] or None
 
-    new_cupcake = Cupcake(flavor=flavor,
-                          size=size,
-                          rating=rating,
-                          image_url=image_url)
+    new_cupcake = Cupcake(
+        flavor=flavor,
+        size=size,
+        rating=rating,
+        image_url=image_url
+    )
 
     db.session.add(new_cupcake)
     db.session.commit()
