@@ -118,12 +118,11 @@ class CupcakeViewsTestCase(TestCase):
                 url,
                 json={"flavor": "TestFlavorChange" }
             )
-#TODO: pull out and replace with variable
+
             id = resp.json['cupcake']['id']
 
             self.assertEqual(resp.status_code, 200)
             self.assertIsInstance(id, int)
-
 
             self.assertEqual(resp.json, {
                 "cupcake": {
@@ -139,7 +138,7 @@ class CupcakeViewsTestCase(TestCase):
     def test_delete_cupcake(self):
         """Tests that status code is 200, and returns expected JSON
         Tests that cupcake count is accurate"""
-#TODO: assert somethign exists first
+
         with app.test_client() as client:
             self.assertEqual(Cupcake.query.count(), 1)
             url = f"/api/cupcakes/{self.cupcake_id}"

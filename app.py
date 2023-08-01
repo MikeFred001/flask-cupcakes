@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import connect_db, Cupcake, db, DEFAULT_IMAGE_URL
@@ -19,6 +19,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
+
+
+@app.get('/')
+def display_cupcakes_and_form():
+    """Displays list of cupcakes and a form to add more."""
+
+    return render_template("index.html")
 
 
 @app.get('/api/cupcakes')
@@ -55,7 +62,6 @@ def create_cupcake():
 
      Returns JSON {"cupcake": {id, flavor, size, rating, image_url}}
     """
-
 
     flavor = request.json["flavor"]
     size = request.json["size"]
@@ -110,7 +116,6 @@ def update_cupcake(cupcake_id):
     serialized = cupcake.serialize()
 
     return jsonify(cupcake=serialized)
-
 
 
 @app.delete('/api/cupcakes/<int:cupcake_id>')

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Home Page{% endblock %}
+
+
+  {% block content %}
+    <h1>Add a Cupcake!</h1>
+
+    <form method="POST">
+      <p> Flavor <input id="flavor-val" type="text" required></p>
+
+      <p> Size <input id="size-val" type="text" required></p>
+
+      <p> Rating <input id="rating-val" type="number" required></p>
+
+      <p> Image URL <input id="image-url-val" type="url" required></p>
+
+      <button class="btn btn-success" type="submit">Add Cupcake</button>
+    </form>
+
+    <ul id="cupcake-list">
+      <!-- cupcakes go here -->
+    </ul>
+  {% endblock %}
